@@ -1,0 +1,98 @@
+Sub CreateSql()
+    Dim Arr(1 To 100) As String
+    Dim StaArrrtLine, RowIndex, ColIndex, MaxCol, Index As Integer
+    Dim srcSheet, destSheet, tempStr As String
+    Dim TableName, strDrop, strCreate As String
+    Dim Arr2(1 To 100) As Integer
+    Dim Arr3(1 To 100) As String
+    
+    'Get Table Name
+    srcSheet = Worksheets("Tools").Range("I1").Value
+    TableName = srcSheet
+    
+   
+    'Clear Cells
+    Worksheets("Tools" & i).Cells.ClearContents
+    Worksheets("Tools").Range("I1").Value = srcSheet
+       
+    'Write Delete
+    strDrop = "Delete from " & TableName & ";"
+    Worksheets("Tools").Cells(6, 2).Value = strDrop
+    
+    'Column line`
+    ColIndex = 1
+    RowIndex = 4
+    ' Start Line to write
+    StartLine = 9
+    While Worksheets(srcSheet).Cells(1, ColIndex).Value <> ""
+        ColIndex = ColIndex + 1
+    Wend
+    
+    MaxCol = ColIndex
+
+    ColIndex = 1
+    Index = 1
+      
+    '获取表的日期字段序号和格式存入Arr2中
+    While Index < MaxCol
+            tempStr = Worksheets(srcSheet).Cells(2, Index).Value
+            typeStr = Worksheets(srcSheet).Cells(3, Index).Value
+            If tempStr Like "DATE" Then
+            Arr2(Index) = Index
+            Arr3(Index) = typeStr
+            End If
+            Index = Index + 1
+            Wend
+            
+            For i = 1 To Index
+            Debug.Print Arr2(i)
+            Next
+   
+    
+    'Write Insert
+    While Worksheets(srcSheet).Cells(RowIndex, ColIndex).Value <> ""
+        While ColIndex < MaxCol
+        
+            tempStr = Worksheets(srcSheet).Cells(RowIndex, ColIndex).Value
+            
+                     
+            If InStr(tempStr, "'") <> 0 Then
+                ' 含有单引号
+                tempStr = Replace(tempStr, "'", "''")
+            End If
+            
+            
+            If tempStr <> "" Then
+                tempStr = "'" & Trim(tempStr) & "'"
+            Else
+                tempStr = "null"
+            End If
+          
+            For i = 1 To Index
+            If ColIndex = Arr2(i) And tempStr <> "null" Then
+                tempStr = "to_date(" & tempStr & ",'" & Arr3(i) & " ')"
+               Exit For
+            End If
+            Next
+           
+                     
+            Arr(ColIndex) = tempStr
+            ColIndex = ColIndex + 1
+        Wend
+        
+        tempStr = Arr(1)
+        For i = 2 To 100
+            If (Arr(i) <> "") Then
+                tempStr = tempStr & "," & Arr(i)
+            End If
+        Next i
+        
+              
+        strCreate = "Insert into " & TableName & " values(" & tempStr & ");"
+        Worksheets("Tools").Cells(StartLine, 2).Value = strCreate
+     
+        RowIndex = RowIndex + 1
+        ColIndex = 1
+        StartLine = StartLine + 1
+    Wend
+End Sub

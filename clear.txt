@@ -1,0 +1,12 @@
+Sub Clear()
+
+    Dim srcSheet, destSheet, tempStr As String
+    
+    'Get Table Name
+    srcSheet = Worksheets("Tools").Range("I1").Value
+    TableName = srcSheet
+   
+    'Clear Cells
+    Worksheets("Tools" & i).Cells.ClearContents
+    Worksheets("Tools").Range("I1").Value = srcSheet
+End Sub
